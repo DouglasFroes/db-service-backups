@@ -20,6 +20,7 @@
       color: #e2e8f0;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
     }
@@ -27,34 +28,55 @@
     .card {
       background: #1e293b;
       border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 40px;
+      border-radius: 14px;
+      padding: 44px 40px;
       width: 100%;
       max-width: 380px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, .5);
+      animation: fadeUp .3s ease;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .logo {
       text-align: center;
-      margin-bottom: 32px;
+      margin-bottom: 36px;
+    }
+
+    .logo .icon {
+      font-size: 36px;
     }
 
     .logo h1 {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
-      color: #38bdf8;
+      color: #f1f5f9;
+      margin-top: 10px;
     }
 
     .logo p {
       font-size: 13px;
-      color: #94a3b8;
+      color: #64748b;
       margin-top: 4px;
     }
 
     label {
       display: block;
-      font-size: 13px;
+      font-size: 12px;
+      font-weight: 600;
       color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .05em;
       margin-bottom: 6px;
     }
 
@@ -63,52 +85,60 @@
       background: #0f172a;
       border: 1px solid #334155;
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 11px 14px;
       color: #e2e8f0;
       font-size: 14px;
       outline: none;
-      transition: border-color .2s;
+      transition: border-color .15s, box-shadow .15s;
     }
 
     input:focus {
       border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, .15);
     }
 
     .field {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
-    button {
+    .submit-btn {
       width: 100%;
       background: #0284c7;
       color: #fff;
       border: none;
       border-radius: 8px;
-      padding: 11px;
+      padding: 12px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: background .2s;
+      transition: background .2s, opacity .2s;
+      margin-top: 4px;
     }
 
-    button:hover {
+    .submit-btn:hover {
       background: #0369a1;
     }
 
-    button:disabled {
-      background: #334155;
+    .submit-btn:disabled {
+      opacity: .5;
       cursor: not-allowed;
     }
 
     .error {
       background: #450a0a;
-      border: 1px solid #b91c1c;
+      border: 1px solid #7f1d1d;
       color: #fca5a5;
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 13px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: none;
+    }
+
+    footer {
+      margin-top: 28px;
+      font-size: 12px;
+      color: #334155;
     }
   </style>
 </head>
@@ -116,22 +146,24 @@
 <body>
   <div class="card">
     <div class="logo">
-      <h1>🛢 PG Backup Manager</h1>
+      <div class="icon">🛢</div>
+      <h1>PG Backup Manager</h1>
       <p>Gerenciamento de backups PostgreSQL</p>
     </div>
     <div class="error" id="error"></div>
     <form id="loginForm">
       <div class="field">
         <label for="username">Usuário</label>
-        <input id="username" type="text" autocomplete="username" placeholder="admin" required />
+        <input id="username" type="text" autocomplete="username" placeholder="admin" required autofocus />
       </div>
       <div class="field">
         <label for="password">Senha</label>
         <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
       </div>
-      <button type="submit" id="btn">Entrar</button>
+      <button class="submit-btn" type="submit" id="btn">Entrar</button>
     </form>
   </div>
+  <footer>PG Backup Manager</footer>
 
   <script>
     if (localStorage.getItem('token')) location.href = '/dashboard.html';
@@ -142,8 +174,7 @@
       const err = document.getElementById('error');
       err.style.display = 'none';
       btn.disabled = true;
-      btn.textContent = 'Entrando...';
-
+      btn.textContent = 'Entrando…';
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
