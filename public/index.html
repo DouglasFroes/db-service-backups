@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PG Backup Manager — Login</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .logo p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    input:focus {
+      border-color: #38bdf8;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    button {
+      width: 100%;
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    button:hover {
+      background: #0369a1;
+    }
+
+    button:disabled {
+      background: #334155;
+      cursor: not-allowed;
+    }
+
+    .error {
+      background: #450a0a;
+      border: 1px solid #b91c1c;
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="logo">
+      <h1>🛢 PG Backup Manager</h1>
+      <p>Gerenciamento de backups PostgreSQL</p>
+    </div>
+    <div class="error" id="error"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label for="username">Usuário</label>
+        <input id="username" type="text" autocomplete="username" placeholder="admin" required />
+      </div>
+      <div class="field">
+        <label for="password">Senha</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" id="btn">Entrar</button>
+    </form>
+  </div>
+
+  <script>
+    if (localStorage.getItem('token')) location.href = '/dashboard.html';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn');
+      const err = document.getElementById('error');
+      err.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Entrando...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value.trim(),
+            password: document.getElementById('password').value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Credenciais inválidas');
+        localStorage.setItem('token', data.access_token);
+        location.href = '/dashboard.html';
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+      }
+    });
+  </script>
+</body>
+
+</html>
