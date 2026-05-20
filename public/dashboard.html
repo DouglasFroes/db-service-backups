@@ -384,7 +384,7 @@
       rows.forEach(row => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${row.database?.name ?? row.databaseId}</td>
+          <td>${row.databaseName ?? row.databaseId}</td>
           <td style="font-family:monospace;font-size:12px">${row.filename}</td>
           <td>${fmtSize(row.sizeBytes)}</td>
           <td><span class="badge ${row.status}">${row.status}</span></td>
