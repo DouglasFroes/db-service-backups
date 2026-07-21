@@ -19,7 +19,7 @@ export class BackupUploadService {
         }
       };
 
-      const child = spawn('pg_dump', [dbUrl]);
+      const child = spawn('pg_dump', ['--format=custom', dbUrl]);
       let sizeBytes = 0;
 
       const counter = new PassThrough();
