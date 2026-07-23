@@ -533,9 +533,13 @@
 
     async function runNow() {
       const btn = document.getElementById('btnRun');
+      const dbId = document.getElementById('filterDb').value;
       btn.disabled = true; btn.textContent = '⏳ Executando…';
       try {
-        const r = await api('/backups/run', { method: 'POST' });
+        const r = await api('/backups/run', {
+          method: 'POST',
+          body: JSON.stringify(dbId ? { databaseId: Number(dbId) } : {}),
+        });
         const d = await r.json();
         toast(`Concluído: ${d.ran} ok, ${d.failed} falha(s)`);
         await load();

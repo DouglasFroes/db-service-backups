@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { SqliteService } from '../../../providers/sqlite/sqlite.service';
 import { StorageService } from '../../../providers/storage/storage.service';
 import { BackupUploadService } from './backup-upload.service';
@@ -42,9 +42,24 @@ export class BackupRunService {
     return { ran, failed };
   }
 
+  async runById(databaseId: number): Promise<{ ran: number; failed: number }> {
+    const db = this.sqlite.db
+      .prepare(
+        'SELECT id, name, url FROM database_connections WHERE id = ? AND active = 1',
+      )
+      .get(databaseId) as DatabaseRow | undefined;
+    if (!db) {
+      throw new NotFoundException(
+        `Conexão de banco de dados ${databaseId} não encontrada ou inativa`,
+      );
+    }
+    const ok = await this.runOne(db);
+    return ok ? { ran: 1, failed: 0 } : { ran: 0, failed: 1 };
+  }
+
   async runOne(db: DatabaseRow): Promise<boolean> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `${timestamp}.backup`;
+    const filename = `${timestamp}.sql`;
     const storageKey = `${sanitizeFolderName(db.name)}/${filename}`;
 
     const { lastInsertRowid } = this.sqlite.db

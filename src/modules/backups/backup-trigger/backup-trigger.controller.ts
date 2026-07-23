@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/auth.guard';
 import { BackupTriggerService } from './backup-trigger.service';
 
@@ -8,7 +8,7 @@ export class BackupTriggerController {
   constructor(private readonly service: BackupTriggerService) {}
 
   @Post('run')
-  run() {
-    return this.service.run();
+  run(@Body('databaseId') databaseId?: number) {
+    return this.service.run(databaseId);
   }
 }
